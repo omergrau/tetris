@@ -22,14 +22,13 @@ def win(bord, line, stay_items, hight):
 
 
 def creat_level(hight, widht):
-    stand = []
     border = []
     for y in range(20):
         border.append(line("grey", 0, int(widht * 0.5) - 12 * 21, hight - y * 21, 1))
         border.append(line("grey", 0, int(widht * 0.5) + 12 * 21, hight - y * 21, 1))
     for x in range(25):
-        stand.append(line("grey", 0, int(widht * 0.5) - (12 - x) * 21, hight - 21, 1))
-    return stand,border
+        border.append(line("grey", 0, int(widht * 0.5) - (12 - x) * 21, hight - 21, 1))
+    return border
 
 
 def put_in_bord(item, bord, hight, stay_items):
@@ -79,16 +78,15 @@ def move_to_stay(item, stays_items, bord, hight, real=True):
                     if b.x == bl.x and b.y + b.hight + 1 == bl.y:
                         if real:
                             stays_items_new.append(copy.deepcopy(item))
-                            put_in_bord(item, bord, hight, stays_items_new)
+                            #put_in_bord(item, bord, hight, stays_items_new)
                         item.blocks = []
                         return item, stays_items_new
     for line in bord:
-        for blocks in line:
-            for block in blocks.blocks:
-                if block in item.blocks:
-                    if real:
-                        put_in_bord(item, bord, hight, stays_items_new)
-                    item.blocks = []
+        for block in line.blocks:
+            if block in item.blocks:
+                if real:
+                    put_in_bord(item, bord, hight, stays_items_new)
+                item.blocks = []
     return item, stays_items_new
 
 
@@ -103,7 +101,8 @@ def play_game():
     screen = pygame.display.set_mode((width, hight))
     clock = pygame.time.Clock()
     movement_speed = 3
-    stays_items, borders = [], list(creat_level(hight, width))
+    stays_items, borders = [], creat_level(hight, width)
+    stays_items=stays_items +borders
     #bord[1] = borders
     falling = False
     flif = False
@@ -150,7 +149,7 @@ def play_game():
             for block in item.blocks:
                 pygame.draw.rect(screen, block.color, (block.x, block.y, block.hight, block.width))
 
-        shape1, stays_items = move_to_stay(shape1, stays_items, bord, hight)
+        shape1, stays_items = move_to_stay(shape1, stays_items, borders, hight)
 
         if len(shape1.blocks) == 0:
             falling = False
@@ -165,10 +164,7 @@ def play_game():
         count += 1
         pygame.display.update()
         pygame.time.Clock()
-        for _ in bord:
-            print(len(_), end=" ")
-        print("\n")
         clock.tick(80)
 
-
+pygame.init()
 play_game()
